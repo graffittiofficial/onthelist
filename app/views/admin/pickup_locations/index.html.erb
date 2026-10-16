@@ -1,0 +1,15 @@
+<% content_for :title, "Pickup locations · Onthelist Admin" %>
+<section class="admin-page">
+  <header class="page-heading">
+    <div><p class="eyebrow">Store operations</p><h1>Pickup locations</h1></div>
+    <%= link_to "Add pickup location", new_admin_pickup_location_path, class: "button button--dark" %>
+  </header>
+  <ul class="admin-list">
+    <% @pickup_locations.each do |location| %>
+      <li>
+        <%= link_to location.name, edit_admin_pickup_location_path(location), class: "admin-list__title" %>
+        <span class="admin-list__meta"><%= location.market_code %> · <%= location.active? ? "Active" : "Inactive" %></span>
+      </li>
+    <% end %>
+  </ul>
+</section>

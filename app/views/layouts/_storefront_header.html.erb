@@ -1,0 +1,13 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <%= link_to "onthelist", root_path(market: @market_code || "US"), class: "wordmark", aria: { label: "Onthelist home" } %>
+    <nav class="primary-nav" aria-label="Main navigation">
+      <%= link_to "Discover", products_path(market: @market_code || "US") %>
+      <%= link_to "Collections", root_path(market: @market_code || "US", anchor: "collections") %>
+    </nav>
+    <%= link_to cart_path(market: @market_code || "US"), class: "header-cart" do %>
+      <span>Cart</span>
+      <span class="header-cart__arrow" aria-hidden="true">+</span>
+    <% end %>
+  </div>
+</header>

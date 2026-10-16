@@ -1,0 +1,26 @@
+<% content_for :title, "Products · Onthelist Admin" %>
+<section class="admin-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Catalog management</p>
+      <h1>Products</h1>
+      <p class="page-heading__description">Manage product stories, images, Variants, and market prices.</p>
+    </div>
+    <%= link_to "Add Product", new_admin_product_path, class: "button button--dark" %>
+  </header>
+  <% if @products.any? %>
+  <ul class="admin-list">
+    <% @products.each do |product| %>
+      <li>
+        <div>
+          <%= link_to product.translation_for(I18n.default_locale)&.name || product.slug, edit_admin_product_path(product), class: "admin-list__title" %>
+          <span class="admin-list__meta"><%= product.product_images.size %> images · <%= product.variants.size %> Variants</span>
+        </div>
+        <span class="admin-list__meta"><%= product.status %></span>
+      </li>
+    <% end %>
+  </ul>
+  <% else %>
+    <p class="empty-state">Your catalog starts with its first Product. <%= link_to "Add a Product", new_admin_product_path %>.</p>
+  <% end %>
+</section>

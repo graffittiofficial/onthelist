@@ -1,0 +1,68 @@
+<% content_for :title, "Onthelist · Fashion, on the list" %>
+<% feature_translation = @featured_collection&.translation_for(I18n.locale) %>
+<% feature_image = @featured_product&.product_images&.first %>
+
+<section class="store-hero" aria-labelledby="home-heading">
+  <div class="store-hero__copy">
+    <p class="eyebrow"><%= feature_translation ? "The current edit · #{feature_translation.name}" : "A considered edit" %></p>
+    <h1 id="home-heading">Fashion, on the list</h1>
+    <p class="store-hero__description">Discover thoughtful pieces, considered details, and the next things you’ll want to wear on repeat.</p>
+    <div class="store-hero__actions">
+      <% if @featured_collection && feature_translation %>
+        <%= link_to "Explore the edit", collection_path(@featured_collection.slug, market: @market_code), class: "button button--dark" %>
+      <% else %>
+        <%= link_to "Explore the collection", products_path(market: @market_code), class: "button button--dark" %>
+      <% end %>
+      <%= link_to "Shop all pieces", products_path(market: @market_code), class: "text-link" %>
+    </div>
+  </div>
+  <% if feature_image&.image&.attached? %>
+    <div class="store-hero__visual">
+      <%= image_tag feature_image.image.variant(resize_to_limit: [ 1200, 1600 ]), alt: feature_image.alt_text, fetchpriority: "high" %>
+      <span class="store-hero__caption">The current edit</span>
+    </div>
+  <% else %>
+    <div class="store-hero__visual store-hero__visual--placeholder" aria-label="Editorial product photography will appear here when the featured Collection has an image">
+      <span>Wear<br>what<br>moves you.</span>
+      <span class="store-hero__caption">New perspectives, considered</span>
+    </div>
+  <% end %>
+</section>
+
+<section class="editorial-section editorial-section--soft" id="collections" aria-labelledby="collections-heading">
+  <div class="editorial-section__intro">
+    <div>
+      <p class="eyebrow">Find your point of view</p>
+      <h2 id="collections-heading">The Collections</h2>
+    </div>
+    <%= link_to "Discover all pieces", products_path(market: @market_code), class: "text-link" %>
+  </div>
+
+  <% if @collections.any? %>
+    <div class="collection-grid">
+      <% @collections.each do |collection| %>
+        <% translation = collection.translation_for(I18n.locale) %>
+        <% next unless translation %>
+        <% lead_product = collection.products.find(&:published?) %>
+        <% lead_image = lead_product&.product_images&.first %>
+        <article class="collection-card">
+          <%= link_to collection_path(collection.slug, market: @market_code) do %>
+            <div class="collection-card__image">
+              <% if lead_image&.image&.attached? %>
+                <%= image_tag lead_image.image.variant(resize_to_limit: [ 900, 1200 ]), alt: lead_image.alt_text, loading: "lazy" %>
+              <% else %>
+                <span class="collection-card__placeholder" aria-hidden="true">The<br>collection</span>
+              <% end %>
+            </div>
+            <h3 class="collection-card__title"><%= translation.name %></h3>
+            <% if translation.description.present? %>
+              <p class="collection-card__description"><%= translation.description %></p>
+            <% end %>
+          <% end %>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty-state">New collections are being thoughtfully assembled. <%= link_to "Explore all pieces", products_path(market: @market_code) %>.</p>
+  <% end %>
+</section>

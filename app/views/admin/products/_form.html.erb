@@ -1,0 +1,56 @@
+<%= form_with model: [ :admin, @product ], class: "admin-form" do |form| %>
+  <% if @product.errors.any? %><p role="alert"><%= @product.errors.full_messages.to_sentence %></p><% end %>
+  <%= form.label :slug %><%= form.text_field :slug, required: true %>
+  <%= form.label :status %><%= form.select :status, Product::STATUSES %>
+  <%= form.label :material %><%= form.text_field :material %>
+  <%= form.label :care_instructions %><%= form.text_area :care_instructions %>
+  <%= form.label :sizing_guidance %><%= form.text_area :sizing_guidance %>
+
+  <%= form.fields_for :translations do |translation_form| %>
+    <fieldset>
+      <legend>Localized content</legend>
+      <%= translation_form.label :locale %>
+      <%= translation_form.select :locale, Rails.application.config.x.commerce.supported_locales %>
+      <%= translation_form.label :name %><%= translation_form.text_field :name, required: true %>
+      <%= translation_form.label :description %><%= translation_form.text_area :description %>
+    </fieldset>
+  <% end %>
+
+  <%= form.fields_for :variants do |variant_form| %>
+    <fieldset>
+      <legend>Variant</legend>
+      <%= variant_form.label :sku %><%= variant_form.text_field :sku, required: true %>
+      <%= variant_form.label :size %><%= variant_form.text_field :size %>
+      <%= variant_form.label :color %><%= variant_form.text_field :color %>
+      <%= variant_form.label :fit %><%= variant_form.text_field :fit %>
+      <%= variant_form.label :stock_quantity %><%= variant_form.number_field :stock_quantity, min: 0 %>
+      <%= variant_form.fields_for :prices do |price_form| %>
+        <fieldset>
+          <legend><%= price_form.object.currency %> price</legend>
+          <%= price_form.hidden_field :currency %>
+          <%= price_form.label :amount_cents, "Regular price (minor units)" %>
+          <%= price_form.number_field :amount_cents, min: 0, required: true %>
+          <%= price_form.label :sale_amount_cents, "Sale price (minor units)" %>
+          <%= price_form.number_field :sale_amount_cents, min: 0 %>
+        </fieldset>
+      <% end %>
+    </fieldset>
+  <% end %>
+
+  <% if @product.persisted? %>
+    <p><%= link_to "Add another Variant", new_admin_product_variant_path(@product) %></p>
+    <ul>
+      <% @product.variants.each do |variant| %>
+        <li><%= link_to "Edit #{variant.sku}", edit_admin_product_variant_path(@product, variant) %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <fieldset>
+    <legend>Collections</legend>
+    <div class="collection-selection">
+      <%= form.collection_check_boxes :collection_ids, @collections, :id, :slug %>
+    </div>
+  </fieldset>
+  <%= form.submit "Save Product", class: "button button--dark" %>
+<% end %>

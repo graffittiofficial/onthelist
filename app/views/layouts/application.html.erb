@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Onthelist" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Onthelist">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <% admin_area = controller_path.start_with?("admin/") %>
+  <body class="<%= admin_area ? "site site--admin" : "site site--storefront" %>">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <%= render(admin_area ? "layouts/admin_header" : "layouts/storefront_header") %>
+    <div class="flash-region" aria-live="polite">
+      <% flash.each do |type, message| %>
+        <p class="flash-message flash-message--<%= type == "alert" ? "alert" : "notice" %>" role="<%= type == "alert" ? "alert" : "status" %>"><%= message %></p>
+      <% end %>
+    </div>
+    <main id="main-content" class="page-shell">
+      <%= yield %>
+    </main>
+    <% unless admin_area %>
+      <footer class="site-footer">
+        <div class="site-footer__inner">
+          <%= link_to "onthelist", root_path(market: @market_code || "US"), class: "wordmark wordmark--footer" %>
+          <p>Considered pieces. A more personal way to find your next favourite.</p>
+          <%= link_to "Shop all", products_path(market: @market_code || "US") %>
+        </div>
+      </footer>
+    <% end %>
+  </body>
+</html>

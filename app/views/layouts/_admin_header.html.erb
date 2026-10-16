@@ -1,0 +1,19 @@
+<header class="site-header site-header--admin">
+  <div class="site-header__inner">
+    <%= link_to "onthelist", admin_root_path, class: "wordmark", aria: { label: "Onthelist Admin home" } %>
+    <% if session[:admin_user_id].present? %>
+      <nav class="primary-nav" aria-label="Admin navigation">
+        <%= link_to "Overview", admin_root_path %>
+        <%= link_to "Products", admin_products_path %>
+        <%= link_to "Collections", admin_collections_path %>
+        <%= link_to "Pickup locations", admin_pickup_locations_path %>
+      </nav>
+      <div class="site-header__actions">
+        <%= link_to "View Store", root_path, class: "text-button" %>
+        <%= button_to "Sign out", admin_session_path, method: :delete, class: "text-button" %>
+      </div>
+    <% else %>
+      <span class="admin-header__label">Store administration</span>
+    <% end %>
+  </div>
+</header>

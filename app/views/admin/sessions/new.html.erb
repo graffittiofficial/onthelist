@@ -1,0 +1,19 @@
+<% content_for :title, "Sign in · Onthelist Admin" %>
+<section class="admin-page">
+  <section class="checkout-panel admin-sign-in">
+    <p class="eyebrow">Store administration</p>
+    <h1>Welcome back.</h1>
+
+  <%= form_with url: admin_session_path, class: "admin-form" do |form| %>
+    <div>
+      <%= form.label :email %>
+      <%= form.email_field :email, autocomplete: "username", required: true %>
+    </div>
+    <div>
+      <%= form.label :password %>
+      <%= form.password_field :password, autocomplete: "current-password", required: true %>
+    </div>
+    <%= form.submit "Sign in", class: "button button--dark" %>
+  <% end %>
+  </section>
+</section>

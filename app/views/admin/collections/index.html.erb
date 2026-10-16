@@ -1,0 +1,22 @@
+<% content_for :title, "Collections · Onthelist Admin" %>
+<section class="admin-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Merchandising</p>
+      <h1>Collections</h1>
+      <p class="page-heading__description">Shape the edits customers discover across the Store.</p>
+    </div>
+    <%= link_to "Add Collection", new_admin_collection_path, class: "button button--dark" %>
+  </header>
+  <ul class="admin-list">
+    <% @collections.each do |collection| %>
+      <li>
+        <div>
+          <%= link_to collection.translation_for(I18n.default_locale)&.name || collection.slug, edit_admin_collection_path(collection), class: "admin-list__title" %>
+          <span class="admin-list__meta"><%= collection.products.size %> Products</span>
+        </div>
+        <span class="admin-list__meta"><%= collection.featured_on_home? ? "Homepage feature" : collection.status %></span>
+      </li>
+    <% end %>
+  </ul>
+</section>

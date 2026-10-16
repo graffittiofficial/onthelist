@@ -1,0 +1,63 @@
+<% content_for :title, "Your Cart · Onthelist" %>
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">Your selection</p>
+    <h1>Your Cart</h1>
+    <p class="page-heading__description">A few good things, saved for you.</p>
+  </div>
+  <p class="product-toolbar__currency">Currency · <%= @cart.currency %></p>
+</header>
+
+<% if @pending_order %>
+  <p class="status-note" role="status">Checkout is in progress for Order <%= @pending_order.public_token.first(8) %>. <%= link_to "Continue to secure payment", checkout_path %></p>
+  <% if @cart.status == "completed" %>
+    <p class="status-note" role="status">This Cart has been checked out.</p>
+  <% end %>
+<% end %>
+
+<% if @cart.items.any? %>
+  <div class="cart-summary">
+    <ul class="cart-list">
+      <% @cart.items.includes(variant: [ :product, :prices ]).each do |item| %>
+        <% variant = item.variant %>
+        <% translation = variant.product.translation_for(I18n.locale) %>
+        <% price = variant.price_for(@cart.currency) %>
+        <li class="cart-item">
+          <div>
+            <strong class="cart-item__name"><%= translation&.name || variant.product.slug %></strong>
+            <p class="cart-item__meta"><%= [ variant.color, variant.size, variant.fit ].compact_blank.join(" / ") %></p>
+            <div class="cart-item__actions">
+              <% unless @pending_order || @cart.status == "completed" %>
+                <%= form_with model: item, url: cart_item_path(item), method: :patch do |form| %>
+                  <%= form.number_field :quantity, min: 1, max: 20, required: true, aria: { label: "Quantity for #{translation&.name || variant.product.slug}" } %>
+                  <%= form.submit "Update", class: "button button--quiet" %>
+                <% end %>
+                <%= button_to "Remove", cart_item_path(item), method: :delete, class: "text-button text-button--danger" %>
+              <% end %>
+            </div>
+          </div>
+          <span class="cart-item__price">
+            <% if price %>
+              <%= number_to_currency(price.current_amount_cents * item.quantity / 100.0, unit: "#{@cart.currency} ") %>
+            <% else %>
+              Price unavailable
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+    <div class="cart-total">
+      <span>Subtotal</span>
+      <strong><%= number_to_currency(@cart.total_cents / 100.0, unit: "#{@cart.currency} ") %></strong>
+    </div>
+    <p class="form-hint">Shipping and tax are calculated for your destination at checkout.</p>
+    <% unless @pending_order || @cart.status == "completed" %>
+      <%= link_to "Continue to checkout", checkout_path, class: "button button--dark" %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>Your Cart is waiting for something wonderful.</p>
+    <%= link_to "Discover pieces", products_path(market: @market_code), class: "button button--dark" %>
+  </div>
+<% end %>

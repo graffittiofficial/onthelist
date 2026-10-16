@@ -1,0 +1,19 @@
+<%= form_with model: [ :admin, @product, @variant ], class: "admin-form" do |form| %>
+  <% if @variant.errors.any? %><p role="alert"><%= @variant.errors.full_messages.to_sentence %></p><% end %>
+  <%= form.label :sku %><%= form.text_field :sku, required: true %>
+  <%= form.label :size %><%= form.text_field :size %>
+  <%= form.label :color %><%= form.text_field :color %>
+  <%= form.label :fit %><%= form.text_field :fit %>
+  <%= form.label :stock_quantity %><%= form.number_field :stock_quantity, min: 0 %>
+  <%= form.fields_for :prices do |price_form| %>
+    <fieldset>
+      <legend><%= price_form.object.currency %> price</legend>
+      <%= price_form.hidden_field :currency %>
+      <%= price_form.label :amount_cents, "Regular price (minor units)" %>
+      <%= price_form.number_field :amount_cents, min: 0, required: true %>
+      <%= price_form.label :sale_amount_cents, "Sale price (minor units)" %>
+      <%= price_form.number_field :sale_amount_cents, min: 0 %>
+    </fieldset>
+  <% end %>
+  <%= form.submit "Save Variant", class: "button button--dark" %>
+<% end %>

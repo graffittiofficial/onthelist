@@ -1,0 +1,26 @@
+<%= form_with model: [ :admin, @collection ], class: "admin-form" do |form| %>
+  <% if @collection.errors.any? %><p role="alert"><%= @collection.errors.full_messages.to_sentence %></p><% end %>
+  <%= form.label :slug %><%= form.text_field :slug, required: true %>
+  <%= form.label :status %><%= form.select :status, Collection::STATUSES %>
+  <label class="admin-checkbox">
+    <%= form.check_box :featured_on_home %>
+    <span>Feature this Collection on the homepage</span>
+  </label>
+  <p class="form-hint">Only one Collection can be featured. Choosing this one replaces the current homepage feature.</p>
+  <%= form.fields_for :translations do |translation_form| %>
+    <fieldset>
+      <legend>Localized content</legend>
+      <%= translation_form.label :locale %>
+      <%= translation_form.select :locale, Rails.application.config.x.commerce.supported_locales %>
+      <%= translation_form.label :name %><%= translation_form.text_field :name, required: true %>
+      <%= translation_form.label :description %><%= translation_form.text_area :description %>
+    </fieldset>
+  <% end %>
+  <fieldset>
+    <legend>Products</legend>
+    <div class="collection-selection">
+      <%= form.collection_check_boxes :product_ids, @products, :id, :slug %>
+    </div>
+  </fieldset>
+  <%= form.submit "Save Collection", class: "button button--dark" %>
+<% end %>

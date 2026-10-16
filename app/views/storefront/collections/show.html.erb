@@ -1,0 +1,21 @@
+<% content_for :title, "#{@translation.name} · Collections · Onthelist" %>
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">A curated edit</p>
+    <h1><%= @translation.name %></h1>
+    <% if @translation.description.present? %>
+      <p class="page-heading__description"><%= @translation.description %></p>
+    <% end %>
+  </div>
+  <%= link_to "Shop all pieces", products_path(market: @market_code), class: "text-link" %>
+</header>
+
+<section class="product-grid" aria-label="Pieces in #{@translation.name}">
+  <% @products.each do |product| %>
+    <% next unless product.translation_for(I18n.locale) %>
+    <%= render "storefront/product_card", product:, currency: @currency, market: @market_code %>
+  <% end %>
+</section>
+<% if @products.empty? %>
+  <p class="empty-state">This Collection is being assembled. Visit again soon.</p>
+<% end %>

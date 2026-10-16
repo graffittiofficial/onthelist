@@ -1,0 +1,110 @@
+<% content_for :title, "Secure checkout · Onthelist" %>
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">A secure final step</p>
+    <h1>Checkout</h1>
+    <p class="page-heading__description">Your selection is reserved while you complete payment.</p>
+  </div>
+  <%= link_to "Back to Cart", cart_path(market: @market_code), class: "text-link" %>
+</header>
+
+<% if @cart.items.empty? %>
+  <div class="empty-state">
+    <p>Your Cart is empty. Add a Variant before checking out.</p>
+    <%= link_to "Return to the Store", products_path(market: @market_code), class: "button button--dark" %>
+  </div>
+<% elsif @payment_client_secret.present? && @order %>
+  <div class="checkout-layout">
+    <section class="checkout-panel" aria-labelledby="payment-heading">
+      <p class="eyebrow">Secure payment</p>
+      <h2 id="payment-heading">Complete your order</h2>
+      <p class="form-hint">Card information is sent directly to Stripe and is never stored by the Store.</p>
+      <form
+        class="checkout-payment"
+        data-controller="stripe-payment"
+        data-stripe-payment-publishable-key-value="<%= @publishable_key %>"
+        data-stripe-payment-client-secret-value="<%= @payment_client_secret %>"
+        data-stripe-payment-return-url-value="<%= order_path(@order.public_token, market: @order.market_code) %>"
+        data-action="submit->stripe-payment#submit">
+        <div data-stripe-payment-target="element"></div>
+        <p data-stripe-payment-target="error" role="alert"></p>
+        <button type="submit" data-stripe-payment-target="submit" class="button button--dark">Pay securely</button>
+      </form>
+    </section>
+    <aside class="checkout-panel" aria-label="Order total">
+      <p class="eyebrow">Your order</p>
+      <h2>Order summary</h2>
+      <dl class="checkout-totals">
+        <dt>Products</dt><dd><%= number_to_currency(@order.subtotal_cents / 100.0, unit: "#{@order.currency} ") %></dd>
+        <dt>Shipping</dt><dd><%= number_to_currency(@order.shipping_amount_cents / 100.0, unit: "#{@order.currency} ") %></dd>
+        <dt>Tax</dt><dd><%= number_to_currency(@order.tax_amount_cents / 100.0, unit: "#{@order.currency} ") %></dd>
+        <dt class="checkout-totals__total">Total</dt><dd class="checkout-totals__total"><%= number_to_currency(@order.total_cents / 100.0, unit: "#{@order.currency} ") %></dd>
+      </dl>
+      <% if @order.delivery_method == "pickup" %>
+        <p class="form-hint">Pickup at <strong><%= @order.pickup_location.name %></strong><br><%= @order.shipping_address_line1 %>, <%= @order.shipping_city %>.</p>
+      <% else %>
+        <p class="form-hint">Shipping to <strong><%= @order.shipping_address_line1 %></strong><br><%= @order.shipping_city %>, <%= @order.shipping_country_code %>.</p>
+      <% end %>
+    </aside>
+  </div>
+<% else %>
+  <div class="checkout-layout">
+    <section class="checkout-panel">
+      <p class="eyebrow">Delivery details</p>
+      <h2>Where should it go?</h2>
+      <p class="form-hint">Stripe Tax calculates tax using the delivery destination. Pickup is free.</p>
+      <%= form_with url: checkout_path, method: :post, class: "checkout-form" do |form| %>
+        <%= form.hidden_field :market, value: @market_code %>
+        <%= form.label :email, "Email address" %>
+        <%= form.email_field :email, required: true, autocomplete: "email", value: @pending_order&.email || params[:email] %>
+        <fieldset>
+          <legend>Delivery method</legend>
+          <label class="delivery-choice">
+            <%= form.radio_button :delivery_method, "shipping", checked: @pending_order&.delivery_method != "pickup" %>
+            <span>Ship to an address</span>
+          </label>
+          <div class="checkout-address">
+            <%= form.label :shipping_address_line1, "Address" %>
+            <%= form.text_field "shipping_address[line1]", autocomplete: "address-line1", value: @pending_order&.shipping_address_line1 %>
+            <%= form.label :shipping_address_line2, "Apartment, suite, etc. (optional)" %>
+            <%= form.text_field "shipping_address[line2]", autocomplete: "address-line2", value: @pending_order&.shipping_address_line2 %>
+            <%= form.label :shipping_address_city, "City" %>
+            <%= form.text_field "shipping_address[city]", autocomplete: "address-level2", value: @pending_order&.shipping_city %>
+            <%= form.label :shipping_address_state, "State / region" %>
+            <%= form.text_field "shipping_address[state]", autocomplete: "address-level1", value: @pending_order&.shipping_state %>
+            <%= form.label :shipping_address_postal_code, "Postal code" %>
+            <%= form.text_field "shipping_address[postal_code]", autocomplete: "postal-code", value: @pending_order&.shipping_postal_code %>
+            <p class="form-hint">Shipping to <%= @market_code %>. The configured flat rate and tax will be shown before payment.</p>
+          </div>
+          <label class="delivery-choice">
+            <%= form.radio_button :delivery_method, "pickup", checked: @pending_order&.delivery_method == "pickup" %>
+            <span>Pickup</span>
+          </label>
+          <% if @pickup_locations.any? %>
+            <%= form.label :pickup_location_id, "Pickup location" %>
+            <%= form.collection_select :pickup_location_id, @pickup_locations, :id, :name, { include_blank: "Choose a location", selected: @pending_order&.pickup_location_id } %>
+          <% else %>
+            <p class="form-hint">Pickup is not currently available in this market.</p>
+          <% end %>
+        </fieldset>
+        <%= form.submit @pending_order ? "Resume secure payment" : "Review total and continue", class: "button button--dark" %>
+      <% end %>
+    </section>
+    <aside class="checkout-panel">
+      <p class="eyebrow">Your selection</p>
+      <h2>In your Cart</h2>
+      <ul class="order-list">
+        <% @cart.items.includes(variant: :product).each do |item| %>
+          <li class="order-item">
+            <div>
+              <strong class="order-item__name"><%= item.variant.product.translation_for(I18n.locale)&.name || item.variant.product.slug %></strong>
+              <p class="order-item__meta"><%= [ item.variant.color, item.variant.size, item.variant.fit ].compact_blank.join(" / ") %> · Qty <%= item.quantity %></p>
+            </div>
+            <% price = item.variant.price_for(@currency) %>
+            <span class="order-item__price"><%= price ? number_to_currency(price.current_amount_cents * item.quantity / 100.0, unit: "#{@currency} ") : "Price unavailable" %></span>
+          </li>
+        <% end %>
+      </ul>
+    </aside>
+  </div>
+<% end %>

@@ -1,0 +1,27 @@
+<% content_for :title, "Overview · Onthelist Admin" %>
+<section class="admin-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Onthelist · Store operations</p>
+      <h1>Good work starts here.</h1>
+      <p class="page-heading__description">A clear view of the catalog and the details that bring it to life.</p>
+    </div>
+  </header>
+  <nav class="admin-dashboard-nav" aria-label="Store operations">
+    <%= link_to admin_products_path, class: "admin-dashboard-card" do %>
+      <span class="eyebrow">01 · Catalog</span>
+      <strong>Products</strong>
+      <span>Details, imagery, Variants, and pricing</span>
+    <% end %>
+    <%= link_to admin_collections_path, class: "admin-dashboard-card" do %>
+      <span class="eyebrow">02 · Merchandising</span>
+      <strong>Collections</strong>
+      <span>Curated edits and homepage feature</span>
+    <% end %>
+    <%= link_to admin_pickup_locations_path, class: "admin-dashboard-card" do %>
+      <span class="eyebrow">03 · Store operations</span>
+      <strong>Pickup locations</strong>
+      <span>Manage customer pickup options</span>
+    <% end %>
+  </nav>
+</section>

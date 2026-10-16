@@ -1,0 +1,11 @@
+<% content_for :title, "Edit Product · Onthelist" %>
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">Catalog</p>
+    <h1>Edit Product</h1>
+    <p class="page-heading__description">Refine the details, imagery, and market prices for this piece.</p>
+  </div>
+  <%= link_to "Back to Products", admin_products_path, class: "button button--quiet" %>
+</header>
+<%= render "form" %>
+<%= render "image_gallery" %>

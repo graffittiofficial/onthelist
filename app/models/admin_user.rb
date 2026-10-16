@@ -1,0 +1,14 @@
+class AdminUser < ApplicationRecord
+  has_secure_password
+
+  before_validation :normalize_email
+
+  validates :email, presence: true, uniqueness: true
+  validates :password, length: { minimum: 12 }, if: -> { password.present? }
+
+  private
+
+  def normalize_email
+    self.email = email.to_s.strip.downcase
+  end
+end

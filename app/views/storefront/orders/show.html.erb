@@ -1,0 +1,28 @@
+<% content_for :title, "Order status · Onthelist" %>
+<section class="order-panel">
+  <p class="eyebrow">Order <%= @order.public_token.first(8) %></p>
+  <h1>Order status</h1>
+  <% if @order.status == "paid" %>
+    <p class="status-note" role="status">Thank you. Your Order is confirmed.</p>
+  <% elsif @order.status == "pending_payment" %>
+    <p class="status-note" role="status">Your payment is being confirmed. Refresh this page shortly.</p>
+  <% else %>
+    <p class="status-note" role="status">This Order is <%= @order.status.humanize.downcase %>.</p>
+  <% end %>
+  <h2>Order summary</h2>
+  <ul class="order-list">
+    <% @order.items.each do |item| %>
+      <li class="order-item">
+        <div>
+          <strong class="order-item__name"><%= item.product_name %></strong>
+          <p class="order-item__meta"><%= item.variant_description %> × <%= item.quantity %></p>
+        </div>
+        <span class="order-item__price"><%= number_to_currency(item.line_total_cents / 100.0, unit: "#{@order.currency} ") %></span>
+      </li>
+    <% end %>
+  </ul>
+  <div class="order-total">
+    <span>Total</span>
+    <strong><%= number_to_currency(@order.total_cents / 100.0, unit: "#{@order.currency} ") %></strong>
+  </div>
+</section>

@@ -1,0 +1,71 @@
+<% content_for :title, "#{@translation.name} · Onthelist" %>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <%= link_to "Discover", products_path(market: @market_code) %>
+  <span aria-hidden="true">/</span>
+  <span><%= @translation.name %></span>
+</nav>
+
+<article class="product-detail">
+  <div class="product-gallery" aria-label="Product images">
+    <% if @product.product_images.any? %>
+      <% @product.product_images.each do |product_image| %>
+        <figure class="product-gallery__frame">
+          <%= image_tag product_image.image.variant(resize_to_limit: [ 1200, 1600 ]), alt: product_image.alt_text %>
+        </figure>
+      <% end %>
+    <% else %>
+      <div class="product-gallery__placeholder" role="img" aria-label="Photography coming soon for #{@translation.name}">
+        Photography<br>coming soon
+      </div>
+    <% end %>
+  </div>
+
+  <div class="product-detail__copy">
+    <p class="eyebrow">A considered piece</p>
+    <h1><%= @translation.name %></h1>
+    <% if @translation.description.present? %>
+      <p class="product-detail__description"><%= @translation.description %></p>
+    <% end %>
+
+    <% if [ @product.material, @product.care_instructions, @product.sizing_guidance ].any?(&:present?) %>
+      <div class="product-detail__attributes">
+        <% if @product.material.present? %><p>Material: <%= @product.material %></p><% end %>
+        <% if @product.care_instructions.present? %><p><strong>Care</strong><br><%= @product.care_instructions %></p><% end %>
+        <% if @product.sizing_guidance.present? %><p><strong>Fit &amp; sizing</strong><br><%= @product.sizing_guidance %></p><% end %>
+      </div>
+    <% end %>
+
+    <section aria-labelledby="variants-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Choose your fit</p>
+          <h2 id="variants-heading">Available options</h2>
+        </div>
+      </div>
+      <ul class="variant-list">
+        <% @product.variants.each do |variant| %>
+          <% price = variant.price_for(@currency) %>
+          <li class="variant-option">
+            <div class="variant-option__meta">
+              <strong><%= [ variant.color, variant.size, variant.fit ].compact_blank.join(" / ").presence || variant.sku %></strong>
+              <% if price %>
+                <span class="variant-option__price"><%= number_to_currency(price.current_amount_cents / 100.0, unit: "#{@currency} ") %></span>
+              <% else %>
+                <span class="variant-option__price">Price unavailable in this market</span>
+              <% end %>
+              <span class="variant-option__availability <%= "variant-option__availability--out" unless variant.stock_quantity.positive? %>"><%= variant.stock_quantity.positive? ? "Available" : "Unavailable" %></span>
+            </div>
+            <% if variant.stock_quantity.positive? && price %>
+              <%= form_with url: cart_items_path, method: :post do |form| %>
+                <%= form.hidden_field :market, value: @market_code %>
+                <%= form.hidden_field :variant_id, value: variant.id %>
+                <%= form.number_field :quantity, value: 1, min: 1, max: [ variant.stock_quantity, 20 ].min, required: true, aria: { label: "Quantity" } %>
+                <%= form.submit "Add to Cart", class: "button button--quiet" %>
+              <% end %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  </div>
+</article>

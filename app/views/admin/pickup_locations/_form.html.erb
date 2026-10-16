@@ -1,0 +1,13 @@
+<%= form_with model: [ :admin, @pickup_location ], class: "admin-form" do |form| %>
+  <% if @pickup_location.errors.any? %><p role="alert"><%= @pickup_location.errors.full_messages.to_sentence %></p><% end %>
+  <%= form.label :name %><%= form.text_field :name, required: true %>
+  <%= form.label :market_code %><%= form.select :market_code, Rails.application.config.x.commerce.markets.keys.map(&:to_s), required: true %>
+  <%= form.label :address_line1 %><%= form.text_field :address_line1, required: true %>
+  <%= form.label :address_line2 %><%= form.text_field :address_line2 %>
+  <%= form.label :city %><%= form.text_field :city, required: true %>
+  <%= form.label :state %><%= form.text_field :state %>
+  <%= form.label :postal_code %><%= form.text_field :postal_code, required: true %>
+  <%= form.label :country_code %><%= form.select :country_code, Rails.application.config.x.commerce.markets.keys.map(&:to_s), required: true %>
+  <%= form.label :active %><%= form.check_box :active %>
+  <%= form.submit "Save pickup location", class: "button button--dark" %>
+<% end %>

@@ -1,0 +1,18 @@
+<% translation = product.translation_for(I18n.locale) %>
+<% lead_image = product.product_images.first %>
+<% prices = product.variants.filter_map { |variant| variant.price_for(currency)&.current_amount_cents } %>
+<article class="product-card">
+  <%= link_to product_path(product.slug, market: market), class: "product-card__link" do %>
+    <div class="product-card__image">
+      <% if lead_image&.image&.attached? %>
+        <%= image_tag lead_image.image.variant(resize_to_limit: [ 900, 1200 ]), alt: lead_image.alt_text, loading: "lazy" %>
+      <% else %>
+        <span class="product-card__placeholder" aria-hidden="true">A piece<br>to remember</span>
+      <% end %>
+    </div>
+    <h2 class="product-card__title"><%= translation&.name || product.slug %></h2>
+  <% end %>
+  <% if prices.any? %>
+    <p class="product-card__price">From <%= number_to_currency(prices.min / 100.0, unit: "#{currency} ") %></p>
+  <% end %>
+</article>

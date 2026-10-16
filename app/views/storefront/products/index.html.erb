@@ -1,0 +1,57 @@
+<% content_for :title, "Discover · Onthelist" %>
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">The Onthelist edit</p>
+    <h1>Discover</h1>
+    <p class="page-heading__description">Considered pieces, chosen for how they feel as much as how they look.</p>
+  </div>
+  <p class="product-toolbar__currency">Prices in <%= @currency %></p>
+</header>
+
+<section class="filter-panel" aria-label="Refine the collection">
+  <%= form_with url: products_path, method: :get, class: "filter-form" do |form| %>
+    <%= form.hidden_field :market, value: @market_code %>
+    <div class="filter-field">
+      <%= form.label :q, "Search" %>
+      <%= form.search_field :q, value: params[:q], placeholder: "Search pieces" %>
+    </div>
+    <div class="filter-field">
+      <%= form.label :collection, "Collection" %>
+      <%= form.select :collection, options_from_collection_for_select(@collections, :slug, ->(item) { item.translation_for(I18n.locale)&.name || item.slug }, params[:collection]), include_blank: "All collections" %>
+    </div>
+    <div class="filter-field">
+      <%= form.label :size, "Size" %>
+      <%= form.select :size, options_for_select(Variant.distinct.order(:size).where.not(size: [ nil, "" ]).pluck(:size), params[:size]), include_blank: "All sizes" %>
+    </div>
+    <div class="filter-field">
+      <%= form.label :color, "Colour" %>
+      <%= form.select :color, options_for_select(Variant.distinct.order(:color).where.not(color: [ nil, "" ]).pluck(:color), params[:color]), include_blank: "All colours" %>
+    </div>
+    <div class="filter-field">
+      <%= form.label :fit, "Fit" %>
+      <%= form.select :fit, options_for_select(Variant.distinct.order(:fit).where.not(fit: [ nil, "" ]).pluck(:fit), params[:fit]), include_blank: "All fits" %>
+    </div>
+    <div class="filter-field">
+      <%= form.label :sort, "Sort by" %>
+      <%= form.select :sort, options_for_select([ [ "Recently added", "" ], [ "Price: low to high", "price_asc" ], [ "Price: high to low", "price_desc" ] ], params[:sort]) %>
+    </div>
+    <label class="filter-check">
+      <%= form.check_box :available, { checked: params[:available] == "true" }, "true", "false" %>
+      Available only
+    </label>
+    <%= form.submit "Apply filters", class: "button button--quiet filter-submit" %>
+  <% end %>
+</section>
+
+<section aria-label="Products">
+  <% if @products.any? %>
+    <div class="product-grid">
+      <% @products.each do |product| %>
+        <% next unless product.translation_for(I18n.locale) %>
+        <%= render "product_card", product:, currency: @currency, market: @market_code %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty-state">No pieces match those filters. Try adjusting your search.</p>
+  <% end %>
+</section>

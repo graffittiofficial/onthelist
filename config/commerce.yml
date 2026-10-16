@@ -1,0 +1,28 @@
+default: &default
+  default_locale: en
+  default_currency: USD
+  markets:
+    US:
+      locale: en
+      currency: USD
+      tax_behavior: exclusive
+      stripe_shipping_rate_id: <%= ENV["STRIPE_SHIPPING_RATE_US"] %>
+    GB:
+      locale: en-GB
+      currency: GBP
+      tax_behavior: inclusive
+      stripe_shipping_rate_id: <%= ENV["STRIPE_SHIPPING_RATE_GB"] %>
+  supported_locales: [en, en-GB]
+  supported_currencies: [USD, GBP]
+  admin_authentication:
+    failed_attempt_limit: 5
+    throttle_period_seconds: 900
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

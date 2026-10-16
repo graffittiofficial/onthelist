@@ -1,0 +1,10 @@
+<% content_for :title, "Add Product · Onthelist Admin" %>
+<header class="page-heading">
+  <div>
+    <p class="eyebrow">Catalog</p>
+    <h1>Add Product</h1>
+    <p class="page-heading__description">Create a piece, then add its imagery once the Product is saved.</p>
+  </div>
+  <%= link_to "Back to Products", admin_products_path, class: "button button--quiet" %>
+</header>
+<%= render "form" %>

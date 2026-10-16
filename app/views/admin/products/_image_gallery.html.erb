@@ -1,0 +1,56 @@
+<section class="admin-panel image-manager" aria-labelledby="product-images-heading">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Storefront presentation</p>
+      <h2 id="product-images-heading">Product imagery</h2>
+    </div>
+    <span class="count-label"><%= @product.product_images.size %> / <%= ProductImage::MAX_IMAGES_PER_PRODUCT %></span>
+  </div>
+
+  <% if @product.product_images.any? %>
+    <ol class="admin-image-list">
+      <% @product.product_images.each_with_index do |product_image, index| %>
+        <li class="admin-image-row">
+          <div class="admin-image-row__preview">
+            <%= image_tag product_image.image.variant(resize_to_limit: [ 420, 560 ]), alt: product_image.alt_text %>
+          </div>
+          <div class="admin-image-row__content">
+            <p class="eyebrow">Image <%= index + 1 %></p>
+            <%= form_with model: [ :admin, @product, product_image ], class: "image-description-form" do |form| %>
+              <%= form.label :alt_text, "Accessible image description" %>
+              <%= form.text_field :alt_text, maxlength: 250, required: true %>
+              <%= form.submit "Save description", class: "button button--quiet" %>
+            <% end %>
+            <div class="admin-image-row__actions">
+              <% if index.positive? %>
+                <%= button_to "Move earlier", move_up_admin_product_image_path(@product, product_image), method: :patch, class: "text-button" %>
+              <% end %>
+              <% if index < @product.product_images.size - 1 %>
+                <%= button_to "Move later", move_down_admin_product_image_path(@product, product_image), method: :patch, class: "text-button" %>
+              <% end %>
+              <%= button_to "Remove image", admin_product_image_path(@product, product_image), method: :delete, class: "text-button text-button--danger", data: { turbo_confirm: "Remove this Product image?" } %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <p class="empty-note">No Product images yet. Add original or licensed photography to bring this piece to life.</p>
+  <% end %>
+
+  <% if @product.product_images.size < ProductImage::MAX_IMAGES_PER_PRODUCT %>
+    <div class="image-upload">
+      <h3>Add an image</h3>
+      <p class="form-hint">JPEG, PNG, or WebP · up to 10 MB · shown in a portrait 3:4 frame.</p>
+      <%= form_with model: [ :admin, @product, @product_image ], url: admin_product_images_path(@product), multipart: true, class: "image-upload__form" do |form| %>
+        <%= form.label :image, "Choose an image" %>
+        <%= form.file_field :image, accept: "image/jpeg,image/png,image/webp", required: true %>
+        <%= form.label :alt_text, "Describe the image" %>
+        <%= form.text_field :alt_text, maxlength: 250, required: true, placeholder: "For example: Black linen shirt, front view" %>
+        <%= form.submit "Add to gallery", class: "button button--dark" %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="form-hint">This Product has reached the eight-image gallery limit.</p>
+  <% end %>
+</section>
