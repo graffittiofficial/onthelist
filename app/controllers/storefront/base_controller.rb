@@ -1,5 +1,6 @@
 module Storefront
   class BaseController < ApplicationController
+    allow_unauthenticated_access
     before_action :set_market
 
     private
