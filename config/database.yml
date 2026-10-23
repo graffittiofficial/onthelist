@@ -61,8 +61,8 @@ development:
 test:
   <<: *default
   database: onthelist_test
-  username: <%= ENV.fetch("POSTGRES_USER", "foodcourt") %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD", "foodcourt") %>
+  username: <%= ENV.fetch("POSTGRES_USER", "onthelist") %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD", "onthelist") %>
   host: <%= ENV.fetch("POSTGRES_HOST", "127.0.0.1") %>
   port: <%= ENV.fetch("POSTGRES_PORT", 5432) %>
 
