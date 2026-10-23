@@ -9,4 +9,5 @@
 #   end
 if Rails.env.development?
   User.create_with(password: "password").find_or_create_by!(email_address: "u@mail.com")
+  AdminUser.create_with(password: "password").find_or_create_by!(email_address: "a@mail.com")
 end
