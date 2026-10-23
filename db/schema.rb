@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_013000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_052238) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -201,6 +201,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_013000) do
     t.index ["slug"], name: "index_products_on_slug", unique: true
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
   create_table "variant_prices", force: :cascade do |t|
     t.bigint "variant_id", null: false
     t.string "currency", null: false
@@ -238,6 +255,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_013000) do
   add_foreign_key "product_collections", "products"
   add_foreign_key "product_images", "products"
   add_foreign_key "product_translations", "products"
+  add_foreign_key "sessions", "users"
   add_foreign_key "variant_prices", "variants"
   add_foreign_key "variants", "products"
 end
